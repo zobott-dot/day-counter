@@ -480,6 +480,142 @@ input:focus {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
 }
+
+/* Share Button */
+.share-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.share-btn.copied {
+  border-color: #34a853;
+  color: #34a853;
+}
+
+/* Holidays Tab */
+.year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.year-nav button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.year-nav button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.year-nav .year-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: center;
+}
+
+.holiday-columns {
+  display: flex;
+  gap: 12px;
+}
+
+.holiday-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.holiday-col-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+}
+
+.hol-entry {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.hol-entry:last-child {
+  border-bottom: none;
+}
+
+.hol-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.hol-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.hol-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  background: var(--accent);
+  color: #fff;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.exclusions-wrap {
+  display: block;
+}
+
+.exclusions-wrap.hidden {
+  display: none;
+}
+
+.calc-wrap {
+  display: block;
+}
+
+.calc-wrap.hidden {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -492,6 +628,7 @@ input:focus {
   <div class="mode-tabs">
     <button class="mode-tab active" data-mode="add">Add / Subtract</button>
     <button class="mode-tab" data-mode="between">Between Dates</button>
+    <button class="mode-tab" data-mode="holidays">Holidays</button>
   </div>
 
   <!-- Add/Subtract Mode -->
@@ -529,7 +666,29 @@ input:focus {
     </div>
   </div>
 
+  <!-- Holidays Mode -->
+  <div id="holidaysMode" style="display:none;">
+    <div class="card">
+      <div class="year-nav">
+        <button id="yearPrev" aria-label="Previous year">&#8249;</button>
+        <span class="year-display" id="yearDisplay"></span>
+        <button id="yearNext" aria-label="Next year">&#8250;</button>
+      </div>
+      <div class="holiday-columns">
+        <div class="holiday-col">
+          <div class="holiday-col-title">US Federal</div>
+          <div id="federalList"></div>
+        </div>
+        <div class="holiday-col">
+          <div class="holiday-col-title">USPS</div>
+          <div id="uspsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Exclusions -->
+  <div class="exclusions-wrap" id="exclusionsWrap">
   <div class="card">
     <div class="section-label">Exclusions</div>
     <div class="chips">
@@ -547,8 +706,11 @@ input:focus {
       <div class="custom-tags" id="customTags"></div>
     </div>
   </div>
+  </div>
 
+  <div class="calc-wrap" id="calcWrap">
   <button class="calc-btn" id="calcBtn">Calculate</button>
+  </div>
 
   <div class="result-card" id="resultCard">
     <div class="result-answer" id="resultAnswer"></div>
@@ -567,6 +729,7 @@ input:focus {
       Show Details <span class="arrow">&#9660;</span>
     </button>
     <div class="details-content" id="detailsContent"></div>
+    <button class="share-btn" id="shareBtn">Share Result</button>
   </div>
 </div>
 
@@ -594,6 +757,9 @@ input:focus {
   const modeTabs = document.querySelectorAll('.mode-tab');
   const addMode = document.getElementById('addMode');
   const betweenMode = document.getElementById('betweenMode');
+  const holidaysMode = document.getElementById('holidaysMode');
+  const exclusionsWrap = document.getElementById('exclusionsWrap');
+  const calcWrap = document.getElementById('calcWrap');
   let currentMode = 'add';
 
   modeTabs.forEach(tab => {
@@ -603,7 +769,11 @@ input:focus {
       currentMode = tab.dataset.mode;
       addMode.style.display = currentMode === 'add' ? 'block' : 'none';
       betweenMode.style.display = currentMode === 'between' ? 'block' : 'none';
+      holidaysMode.style.display = currentMode === 'holidays' ? 'block' : 'none';
+      exclusionsWrap.classList.toggle('hidden', currentMode === 'holidays');
+      calcWrap.classList.toggle('hidden', currentMode === 'holidays');
       document.getElementById('resultCard').classList.remove('visible');
+      if (currentMode === 'holidays') renderHolidays();
     });
   });
 
@@ -804,11 +974,8 @@ input:focus {
   document.getElementById('calcBtn').addEventListener('click', calculate);
 
   function calculate() {
-    if (currentMode === 'add') {
-      calcAdd();
-    } else {
-      calcBetween();
-    }
+    if (currentMode === 'add') calcAdd();
+    else if (currentMode === 'between') calcBetween();
   }
 
   function calcAdd() {
@@ -846,12 +1013,18 @@ input:focus {
       }
     }
 
+    var exParts = getExclusionLabel();
+    var shareText = `Day Counter: ${numDays} days ${direction} from ${formatDisplay(start)} \u2192 ${formatDisplayFull(current)} (${calendarDays} calendar days`;
+    if (exParts) shareText += `, excluding ${exParts}`;
+    shareText += ')';
+
     showResult({
       answer: formatDisplayFull(current),
-      label: `${numDays} ${exclusions.weekends || exclusions.sundays || exclusions.federal || exclusions.usps || exclusions.custom ? 'business' : 'calendar'} days ${direction === 'forward' ? 'after' : 'before'} ${formatDisplay(start)}`,
+      label: `${numDays} ${exParts ? 'business' : 'calendar'} days ${direction === 'forward' ? 'after' : 'before'} ${formatDisplay(start)}`,
       calendarDays: calendarDays,
       excluded: excludedCount,
-      skippedHolidays: skippedHolidays
+      skippedHolidays: skippedHolidays,
+      shareText: shareText
     });
   }
 
@@ -889,18 +1062,27 @@ input:focus {
       }
     }
 
-    const hasExclusions = exclusions.weekends || exclusions.sundays || exclusions.federal || exclusions.usps || exclusions.custom;
+    var exParts = getExclusionLabel();
+    var answerCount = exParts ? countedDays : calendarDays;
+
+    var shareText = `Day Counter: ${formatDisplay(start)} to ${formatDisplay(end)} \u2192 ${answerCount} days (${calendarDays} calendar days`;
+    if (exParts) shareText += `, excluding ${exParts}`;
+    shareText += ')';
 
     showResult({
-      answer: hasExclusions ? `${countedDays} days` : `${calendarDays} days`,
+      answer: `${answerCount} days`,
       label: `Between ${formatDisplay(start)} and ${formatDisplay(end)}`,
       calendarDays: calendarDays,
       excluded: excludedCount,
-      skippedHolidays: skippedHolidays
+      skippedHolidays: skippedHolidays,
+      shareText: shareText
     });
   }
 
-  function showResult({ answer, label, calendarDays, excluded, skippedHolidays }) {
+  let lastShareText = '';
+
+  function showResult({ answer, label, calendarDays, excluded, skippedHolidays, shareText }) {
+    lastShareText = shareText || '';
     document.getElementById('resultAnswer').textContent = answer;
     document.getElementById('resultLabel').textContent = label;
     document.getElementById('calendarDays').textContent = calendarDays;
@@ -938,6 +1120,17 @@ input:focus {
     document.getElementById('resultCard').classList.add('visible');
   }
 
+  // ── Exclusion Label Helper ──
+  function getExclusionLabel() {
+    var parts = [];
+    if (exclusions.weekends) parts.push('weekends');
+    if (exclusions.sundays) parts.push('Sundays');
+    if (exclusions.federal) parts.push('US Federal Holidays');
+    if (exclusions.usps) parts.push('USPS Holidays');
+    if (exclusions.custom && customDates.length) parts.push('custom dates');
+    return parts.length ? parts.join(' and ') : '';
+  }
+
   // ── Details Toggle ──
   document.getElementById('detailsToggle').addEventListener('click', () => {
     const toggle = document.getElementById('detailsToggle');
@@ -948,6 +1141,52 @@ input:focus {
       ? 'Hide Details <span class="arrow">&#9660;</span>'
       : 'Show Details <span class="arrow">&#9660;</span>';
   });
+
+  // ── Share Button ──
+  const shareBtn = document.getElementById('shareBtn');
+
+  shareBtn.addEventListener('click', () => {
+    if (!lastShareText) return;
+    if (navigator.share) {
+      navigator.share({ text: lastShareText }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(lastShareText).then(() => {
+        shareBtn.textContent = 'Copied!';
+        shareBtn.classList.add('copied');
+        setTimeout(() => {
+          shareBtn.textContent = 'Share Result';
+          shareBtn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {});
+    }
+  });
+
+  // ── Holidays Tab ──
+  let holidayYear = new Date().getFullYear();
+  const yearDisplay = document.getElementById('yearDisplay');
+
+  document.getElementById('yearPrev').addEventListener('click', () => { holidayYear--; renderHolidays(); });
+  document.getElementById('yearNext').addEventListener('click', () => { holidayYear++; renderHolidays(); });
+
+  // Names unique to each list
+  const federalOnly = new Set(['Columbus Day']);
+  const uspsOnly = new Set(['Day After Thanksgiving']);
+
+  function renderHolidays() {
+    yearDisplay.textContent = holidayYear;
+    var fedHols = getFederalHolidays(holidayYear);
+    var uspsHols = getUSPSHolidays(holidayYear);
+
+    document.getElementById('federalList').innerHTML = fedHols.map(h => {
+      var tag = federalOnly.has(h.name) ? ' <span class="hol-tag">US Only</span>' : '';
+      return `<div class="hol-entry"><div class="hol-name">${h.name}${tag}</div><div class="hol-date">${formatDisplayFull(h.date)}</div></div>`;
+    }).join('');
+
+    document.getElementById('uspsList').innerHTML = uspsHols.map(h => {
+      var tag = uspsOnly.has(h.name) ? ' <span class="hol-tag">USPS Only</span>' : '';
+      return `<div class="hol-entry"><div class="hol-name">${h.name}${tag}</div><div class="hol-date">${formatDisplayFull(h.date)}</div></div>`;
+    }).join('');
+  }
 
 })();
 </script>
