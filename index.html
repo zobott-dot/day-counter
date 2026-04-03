@@ -601,36 +601,6 @@ input:focus {
   letter-spacing: 0.03em;
 }
 
-/* Sub-mode Toggle */
-.sub-tabs {
-  display: flex;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 3px;
-  margin-bottom: 16px;
-}
-
-.sub-tab {
-  flex: 1;
-  padding: 6px 8px;
-  border: none;
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-  border-radius: 5px;
-  transition: all 0.2s;
-}
-
-.sub-tab.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
-
 .exclusions-wrap {
   display: block;
 }
@@ -685,29 +655,13 @@ input:focus {
   <!-- Between Dates Mode -->
   <div id="betweenMode" style="display:none;">
     <div class="card">
-      <div class="sub-tabs">
-        <button class="sub-tab active" data-submode="count">Count Days</button>
-        <button class="sub-tab" data-submode="find">Find Date</button>
+      <div class="field">
+        <label for="dateA">Start Date</label>
+        <input type="date" id="dateA">
       </div>
-      <div id="countFields">
-        <div class="field">
-          <label for="dateA">Start Date</label>
-          <input type="date" id="dateA">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label for="dateB">End Date</label>
-          <input type="date" id="dateB">
-        </div>
-      </div>
-      <div id="findFields" style="display:none;">
-        <div class="field">
-          <label for="findStart">Start Date</label>
-          <input type="date" id="findStart">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label for="findDays">Number of Days</label>
-          <input type="number" id="findDays" min="0" value="30" inputmode="numeric">
-        </div>
+      <div class="field">
+        <label for="dateB">End Date</label>
+        <input type="date" id="dateB">
       </div>
     </div>
   </div>
@@ -823,23 +777,6 @@ input:focus {
     });
   });
 
-  // ── Between Sub-mode ──
-  const subTabs = document.querySelectorAll('.sub-tab');
-  const countFields = document.getElementById('countFields');
-  const findFields = document.getElementById('findFields');
-  let betweenSubMode = 'count';
-
-  subTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      subTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      betweenSubMode = tab.dataset.submode;
-      countFields.style.display = betweenSubMode === 'count' ? 'block' : 'none';
-      findFields.style.display = betweenSubMode === 'find' ? 'block' : 'none';
-      document.getElementById('resultCard').classList.remove('visible');
-    });
-  });
-
   // ── Direction ──
   const dirBtns = document.querySelectorAll('.dir-btn');
   let direction = 'forward';
@@ -857,7 +794,6 @@ input:focus {
   const todayStr = formatDateInput(today);
   document.getElementById('startDate').value = todayStr;
   document.getElementById('dateA').value = todayStr;
-  document.getElementById('findStart').value = todayStr;
 
   function formatDateInput(d) {
     const y = d.getFullYear();
@@ -1039,10 +975,7 @@ input:focus {
 
   function calculate() {
     if (currentMode === 'add') calcAdd();
-    else if (currentMode === 'between') {
-      if (betweenSubMode === 'find') calcFindDate();
-      else calcBetween();
-    }
+    else if (currentMode === 'between') calcBetween();
   }
 
   function calcAdd() {
@@ -1139,50 +1072,6 @@ input:focus {
     showResult({
       answer: `${answerCount} days`,
       label: `Between ${formatDisplay(start)} and ${formatDisplay(end)}`,
-      calendarDays: calendarDays,
-      excluded: excludedCount,
-      skippedHolidays: skippedHolidays,
-      shareText: shareText
-    });
-  }
-
-  function calcFindDate() {
-    const startVal = document.getElementById('findStart').value;
-    const numDays = parseInt(document.getElementById('findDays').value, 10);
-    if (!startVal || isNaN(numDays) || numDays < 0) return;
-
-    const start = new Date(startVal + 'T00:00:00');
-    const estYears = Math.ceil(numDays / 200) + 1;
-    const holidayMap = buildHolidayMap(start.getFullYear(), start.getFullYear() + estYears);
-
-    let current = new Date(start);
-    let counted = 0;
-    let calendarDays = 0;
-    let excludedCount = 0;
-    const skippedHolidays = [];
-
-    while (counted < numDays) {
-      current.setDate(current.getDate() + 1);
-      calendarDays++;
-      const check = isExcluded(current, holidayMap);
-      if (check.excluded) {
-        excludedCount++;
-        if (check.reason !== 'Weekend' && check.reason !== 'Sunday') {
-          skippedHolidays.push({ date: new Date(current), reason: check.reason });
-        }
-      } else {
-        counted++;
-      }
-    }
-
-    var exParts = getExclusionLabel();
-    var shareText = `Day Counter: ${numDays} days from ${formatDisplay(start)} \u2192 ${formatDisplayFull(current)} (${calendarDays} calendar days`;
-    if (exParts) shareText += `, excluding ${exParts}`;
-    shareText += ')';
-
-    showResult({
-      answer: formatDisplayFull(current),
-      label: `${numDays} ${exParts ? 'business' : 'calendar'} days from ${formatDisplay(start)}`,
       calendarDays: calendarDays,
       excluded: excludedCount,
       skippedHolidays: skippedHolidays,
