@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day Counter</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Day Counter">
+<link rel="apple-touch-icon" id="app-icon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -944,6 +948,37 @@ input:focus {
       : 'Show Details <span class="arrow">&#9660;</span>';
   });
 
+})();
+</script>
+<script>
+(function() {
+  var s = 180;
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+s+'" height="'+s+'" viewBox="0 0 180 180">'
+    + '<rect width="180" height="180" rx="40" fill="#0f1117"/>'
+    // Calendar body
+    + '<rect x="30" y="45" width="120" height="105" rx="12" fill="none" stroke="#e8e9ed" stroke-width="5"/>'
+    // Header bar line
+    + '<line x1="30" y1="72" x2="150" y2="72" stroke="#e8e9ed" stroke-width="5"/>'
+    // Binding rings
+    + '<line x1="65" y1="35" x2="65" y2="55" stroke="#e8e9ed" stroke-width="6" stroke-linecap="round"/>'
+    + '<line x1="115" y1="35" x2="115" y2="55" stroke="#e8e9ed" stroke-width="6" stroke-linecap="round"/>'
+    // Arrow shaft
+    + '<line x1="48" y1="115" x2="128" y2="115" stroke="#4f8fff" stroke-width="5" stroke-linecap="round"/>'
+    // Arrow head
+    + '<polyline points="118,105 132,115 118,125" fill="none" stroke="#4f8fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+    // Day tick marks
+    + '<line x1="72" y1="108" x2="72" y2="122" stroke="#e8e9ed" stroke-width="3" stroke-linecap="round" opacity="0.5"/>'
+    + '<line x1="88" y1="108" x2="88" y2="122" stroke="#e8e9ed" stroke-width="3" stroke-linecap="round" opacity="0.5"/>'
+    + '<line x1="104" y1="108" x2="104" y2="122" stroke="#e8e9ed" stroke-width="3" stroke-linecap="round" opacity="0.5"/>'
+    + '</svg>';
+  var img = new Image();
+  img.onload = function() {
+    var c = document.createElement('canvas');
+    c.width = s; c.height = s;
+    c.getContext('2d').drawImage(img, 0, 0, s, s);
+    document.getElementById('app-icon').setAttribute('href', c.toDataURL('image/png'));
+  };
+  img.src = 'data:image/svg+xml;base64,' + btoa(svg);
 })();
 </script>
 </body>
