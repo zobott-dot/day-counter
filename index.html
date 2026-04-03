@@ -8,25 +8,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Day Counter">
 <link rel="apple-touch-icon" id="app-icon" href="">
-<link rel="manifest" id="app-manifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-@media screen and (orientation: landscape) {
-  html {
-    transform: rotate(-90deg);
-    transform-origin: top left;
-    width: 100vh;
-    height: 100vw;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    overflow-x: hidden;
-  }
-}
 
 :root {
   --bg: #f4f5f7;
@@ -77,6 +63,13 @@ body {
   max-width: 420px;
   padding: 16px;
   padding-bottom: 40px;
+}
+
+@media screen and (orientation: landscape) {
+  .app {
+    max-width: 100%;
+    padding: 16px 10vw 40px;
+  }
 }
 
 /* Header */
@@ -1230,19 +1223,7 @@ input:focus {
     var c = document.createElement('canvas');
     c.width = s; c.height = s;
     c.getContext('2d').drawImage(img, 0, 0, s, s);
-    var pngUrl = c.toDataURL('image/png');
-    document.getElementById('app-icon').setAttribute('href', pngUrl);
-    var manifest = {
-      name: 'Day Counter',
-      short_name: 'Day Counter',
-      display: 'standalone',
-      orientation: 'portrait',
-      background_color: '#0f1117',
-      theme_color: '#0f1117',
-      icons: [{ src: pngUrl, sizes: '180x180', type: 'image/png' }]
-    };
-    var blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    document.getElementById('app-manifest').setAttribute('href', URL.createObjectURL(blob));
+    document.getElementById('app-icon').setAttribute('href', c.toDataURL('image/png'));
   };
   img.src = 'data:image/svg+xml;base64,' + btoa(svg);
 })();
