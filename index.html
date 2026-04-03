@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --border: #dfe1e6;
+  --text: #1a1d27;
+  --muted: #6b7185;
+  --accent: #2b6fdf;
+  --accent-hover: #2460c4;
+  --chip-bg: #eef0f4;
+  --chip-active-bg: #2b6fdf;
+  --chip-active-text: #ffffff;
+  --danger: #d9534f;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --border: #2a2e3b;
+  --text: #e8e9ed;
+  --muted: #8b8fa3;
+  --accent: #4f8fff;
+  --accent-hover: #3d7de8;
+  --chip-bg: #2a2e3b;
+  --chip-active-bg: #4f8fff;
+  --chip-active-text: #ffffff;
+  --danger: #e06060;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.25s, color 0.25s;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  padding-bottom: 40px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 20px;
+}
+
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 1.1rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+}
+
+/* Mode Tabs */
+.mode-tabs {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.2s;
+}
+
+.mode-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(47,111,223,0.25);
+}
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Form */
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+input[type="date"],
+input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+/* Direction Toggle */
+.direction-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.dir-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dir-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+}
+
+/* Exclusion Chips */
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.chip {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--chip-bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip.active {
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+  border-color: var(--chip-active-bg);
+}
+
+/* Custom Dates */
+.custom-dates-section {
+  display: none;
+  margin-top: 12px;
+}
+
+.custom-dates-section.visible {
+  display: block;
+}
+
+.custom-date-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.custom-date-input input {
+  flex: 1;
+}
+
+.add-date-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.add-date-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.custom-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.custom-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.custom-tag button {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Calculate Button */
+.calc-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(47,111,223,0.3);
+}
+
+.calc-btn:hover {
+  background: var(--accent-hover);
+}
+
+.calc-btn:active {
+  transform: scale(0.98);
+}
+
+/* Result */
+.result-card {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.3s ease;
+}
+
+.result-card.visible {
+  display: block;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-answer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.result-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.result-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  flex: 1;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Details Expandable */
+.details-toggle {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.details-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.details-toggle .arrow {
+  transition: transform 0.2s;
+  font-size: 0.7rem;
+}
+
+.details-toggle.open .arrow {
+  transform: rotate(180deg);
+}
+
+.details-content {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.details-content.visible {
+  display: block;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.82rem;
+}
+
+.detail-item .d-label {
+  color: var(--muted);
+}
+
+.detail-item .d-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.holiday-list {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.holiday-list-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.holiday-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.holiday-item .h-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Day Counter</h1>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">&#9790;</button>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="add">Add / Subtract</button>
+    <button class="mode-tab" data-mode="between">Between Dates</button>
+  </div>
+
+  <!-- Add/Subtract Mode -->
+  <div id="addMode">
+    <div class="card">
+      <div class="field">
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field">
+        <label for="numDays">Number of Days</label>
+        <input type="number" id="numDays" min="0" value="30" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <div class="direction-toggle">
+          <button class="dir-btn active" data-dir="forward">Forward (+)</button>
+          <button class="dir-btn" data-dir="backward">Backward (&minus;)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Between Dates Mode -->
+  <div id="betweenMode" style="display:none;">
+    <div class="card">
+      <div class="field">
+        <label for="dateA">Start Date</label>
+        <input type="date" id="dateA">
+      </div>
+      <div class="field">
+        <label for="dateB">End Date</label>
+        <input type="date" id="dateB">
+      </div>
+    </div>
+  </div>
+
+  <!-- Exclusions -->
+  <div class="card">
+    <div class="section-label">Exclusions</div>
+    <div class="chips">
+      <div class="chip" data-exclusion="weekends">Weekends</div>
+      <div class="chip" data-exclusion="sundays">Sundays Only</div>
+      <div class="chip" data-exclusion="federal">US Federal Holidays</div>
+      <div class="chip" data-exclusion="usps">USPS Holidays</div>
+      <div class="chip" data-exclusion="custom">Custom Dates</div>
+    </div>
+    <div class="custom-dates-section" id="customSection">
+      <div class="custom-date-input">
+        <input type="date" id="customDateInput">
+        <button class="add-date-btn" id="addCustomDate">Add</button>
+      </div>
+      <div class="custom-tags" id="customTags"></div>
+    </div>
+  </div>
+
+  <button class="calc-btn" id="calcBtn">Calculate</button>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-answer" id="resultAnswer"></div>
+    <div class="result-label" id="resultLabel"></div>
+    <div class="result-stats">
+      <div class="stat">
+        <div class="stat-value" id="calendarDays">—</div>
+        <div class="stat-label">Calendar Days</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="excludedDays">—</div>
+        <div class="stat-label">Days Excluded</div>
+      </div>
+    </div>
+    <button class="details-toggle" id="detailsToggle">
+      Show Details <span class="arrow">&#9660;</span>
+    </button>
+    <div class="details-content" id="detailsContent"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ── Theme ──
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+
+  function setTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    themeToggle.innerHTML = theme === 'dark' ? '&#9788;' : '&#9790;';
+    localStorage.setItem('dayCounterTheme', theme);
+  }
+
+  const savedTheme = localStorage.getItem('dayCounterTheme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  setTheme(savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  // ── Mode Tabs ──
+  const modeTabs = document.querySelectorAll('.mode-tab');
+  const addMode = document.getElementById('addMode');
+  const betweenMode = document.getElementById('betweenMode');
+  let currentMode = 'add';
+
+  modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      modeTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMode = tab.dataset.mode;
+      addMode.style.display = currentMode === 'add' ? 'block' : 'none';
+      betweenMode.style.display = currentMode === 'between' ? 'block' : 'none';
+      document.getElementById('resultCard').classList.remove('visible');
+    });
+  });
+
+  // ── Direction ──
+  const dirBtns = document.querySelectorAll('.dir-btn');
+  let direction = 'forward';
+
+  dirBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      dirBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      direction = btn.dataset.dir;
+    });
+  });
+
+  // ── Default dates ──
+  const today = new Date();
+  const todayStr = formatDateInput(today);
+  document.getElementById('startDate').value = todayStr;
+  document.getElementById('dateA').value = todayStr;
+
+  function formatDateInput(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // ── Exclusions ──
+  const chips = document.querySelectorAll('.chip');
+  const exclusions = { weekends: false, sundays: false, federal: false, usps: false, custom: false };
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const ex = chip.dataset.exclusion;
+
+      if (ex === 'weekends' && !exclusions.weekends) {
+        exclusions.sundays = false;
+        document.querySelector('[data-exclusion="sundays"]').classList.remove('active');
+      } else if (ex === 'sundays' && !exclusions.sundays) {
+        exclusions.weekends = false;
+        document.querySelector('[data-exclusion="weekends"]').classList.remove('active');
+      } else if (ex === 'federal' && !exclusions.federal) {
+        exclusions.usps = false;
+        document.querySelector('[data-exclusion="usps"]').classList.remove('active');
+      } else if (ex === 'usps' && !exclusions.usps) {
+        exclusions.federal = false;
+        document.querySelector('[data-exclusion="federal"]').classList.remove('active');
+      }
+
+      exclusions[ex] = !exclusions[ex];
+      chip.classList.toggle('active', exclusions[ex]);
+
+      document.getElementById('customSection').classList.toggle('visible', exclusions.custom);
+    });
+  });
+
+  // ── Custom Dates ──
+  const customDates = [];
+  const customTags = document.getElementById('customTags');
+
+  document.getElementById('addCustomDate').addEventListener('click', () => {
+    const input = document.getElementById('customDateInput');
+    const val = input.value;
+    if (!val) return;
+    if (customDates.includes(val)) return;
+    customDates.push(val);
+    customDates.sort();
+    renderCustomTags();
+    input.value = '';
+  });
+
+  function renderCustomTags() {
+    customTags.innerHTML = '';
+    customDates.forEach(d => {
+      const tag = document.createElement('span');
+      tag.className = 'custom-tag';
+      tag.innerHTML = `${formatDisplay(new Date(d + 'T00:00:00'))} <button aria-label="Remove">&times;</button>`;
+      tag.querySelector('button').addEventListener('click', () => {
+        customDates.splice(customDates.indexOf(d), 1);
+        renderCustomTags();
+      });
+      customTags.appendChild(tag);
+    });
+  }
+
+  // ── Holiday Calculations ──
+  function getNthDayOfMonth(year, month, dayOfWeek, n) {
+    const first = new Date(year, month, 1);
+    let diff = (dayOfWeek - first.getDay() + 7) % 7;
+    return new Date(year, month, 1 + diff + (n - 1) * 7);
+  }
+
+  function getLastMondayOfMay(year) {
+    const last = new Date(year, 4, 31);
+    const diff = (last.getDay() - 1 + 7) % 7;
+    return new Date(year, 4, 31 - diff);
+  }
+
+  function getFederalHolidays(year) {
+    const holidays = [];
+
+    // New Year's Day
+    holidays.push({ date: new Date(year, 0, 1), name: "New Year's Day" });
+    // MLK Day - 3rd Monday of January
+    holidays.push({ date: getNthDayOfMonth(year, 0, 1, 3), name: 'MLK Day' });
+    // Presidents' Day - 3rd Monday of February
+    holidays.push({ date: getNthDayOfMonth(year, 1, 1, 3), name: "Presidents' Day" });
+    // Memorial Day - Last Monday of May
+    holidays.push({ date: getLastMondayOfMay(year), name: 'Memorial Day' });
+    // Juneteenth
+    holidays.push({ date: new Date(year, 5, 19), name: 'Juneteenth' });
+    // Independence Day
+    holidays.push({ date: new Date(year, 6, 4), name: 'Independence Day' });
+    // Labor Day - 1st Monday of September
+    holidays.push({ date: getNthDayOfMonth(year, 8, 1, 1), name: 'Labor Day' });
+    // Columbus Day - 2nd Monday of October
+    holidays.push({ date: getNthDayOfMonth(year, 9, 1, 2), name: 'Columbus Day' });
+    // Veterans Day
+    holidays.push({ date: new Date(year, 10, 11), name: 'Veterans Day' });
+    // Thanksgiving - 4th Thursday of November
+    holidays.push({ date: getNthDayOfMonth(year, 10, 4, 4), name: 'Thanksgiving' });
+    // Christmas
+    holidays.push({ date: new Date(year, 11, 25), name: 'Christmas Day' });
+
+    return holidays;
+  }
+
+  function getUSPSHolidays(year) {
+    const holidays = [];
+
+    holidays.push({ date: new Date(year, 0, 1), name: "New Year's Day" });
+    holidays.push({ date: getNthDayOfMonth(year, 0, 1, 3), name: 'MLK Day' });
+    holidays.push({ date: getNthDayOfMonth(year, 1, 1, 3), name: "Presidents' Day" });
+    holidays.push({ date: getLastMondayOfMay(year), name: 'Memorial Day' });
+    holidays.push({ date: new Date(year, 5, 19), name: 'Juneteenth' });
+    holidays.push({ date: new Date(year, 6, 4), name: 'Independence Day' });
+    holidays.push({ date: getNthDayOfMonth(year, 8, 1, 1), name: 'Labor Day' });
+    // No Columbus Day for USPS
+    holidays.push({ date: new Date(year, 10, 11), name: 'Veterans Day' });
+    holidays.push({ date: getNthDayOfMonth(year, 10, 4, 4), name: 'Thanksgiving' });
+    // Day after Thanksgiving
+    const thanksgiving = getNthDayOfMonth(year, 10, 4, 4);
+    const dayAfter = new Date(thanksgiving);
+    dayAfter.setDate(dayAfter.getDate() + 1);
+    holidays.push({ date: dayAfter, name: 'Day After Thanksgiving' });
+    holidays.push({ date: new Date(year, 11, 25), name: 'Christmas Day' });
+
+    return holidays;
+  }
+
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function formatDisplay(d) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+
+  function formatDisplayFull(d) {
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    return `${days[d.getDay()]}, ${formatDisplay(d)}`;
+  }
+
+  // ── Determine if a date should be excluded ──
+  function isExcluded(date, holidayMap) {
+    const dow = date.getDay();
+
+    if (exclusions.weekends && (dow === 0 || dow === 6)) return { excluded: true, reason: 'Weekend' };
+    if (exclusions.sundays && dow === 0) return { excluded: true, reason: 'Sunday' };
+
+    const key = dateKey(date);
+
+    if ((exclusions.federal || exclusions.usps) && holidayMap[key]) {
+      return { excluded: true, reason: holidayMap[key] };
+    }
+
+    if (exclusions.custom && customDates.includes(key)) {
+      return { excluded: true, reason: 'Custom exclusion' };
+    }
+
+    return { excluded: false };
+  }
+
+  // ── Build holiday map for a range of years ──
+  function buildHolidayMap(startYear, endYear) {
+    const map = {};
+    for (let y = startYear; y <= endYear; y++) {
+      const holidays = exclusions.federal ? getFederalHolidays(y) :
+                        exclusions.usps ? getUSPSHolidays(y) : [];
+      holidays.forEach(h => { map[dateKey(h.date)] = h.name; });
+    }
+    return map;
+  }
+
+  // ── Calculate ──
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+
+  function calculate() {
+    if (currentMode === 'add') {
+      calcAdd();
+    } else {
+      calcBetween();
+    }
+  }
+
+  function calcAdd() {
+    const startVal = document.getElementById('startDate').value;
+    const numDays = parseInt(document.getElementById('numDays').value, 10);
+    if (!startVal || isNaN(numDays) || numDays < 0) return;
+
+    const start = new Date(startVal + 'T00:00:00');
+    const dir = direction === 'forward' ? 1 : -1;
+
+    // Estimate year range
+    const estYears = Math.ceil(numDays / 200) + 1;
+    const minYear = start.getFullYear() - estYears;
+    const maxYear = start.getFullYear() + estYears;
+    const holidayMap = buildHolidayMap(minYear, maxYear);
+
+    let current = new Date(start);
+    let counted = 0;
+    let calendarDays = 0;
+    let excludedCount = 0;
+    const skippedHolidays = [];
+
+    while (counted < numDays) {
+      current.setDate(current.getDate() + dir);
+      calendarDays++;
+
+      const check = isExcluded(current, holidayMap);
+      if (check.excluded) {
+        excludedCount++;
+        if (check.reason !== 'Weekend' && check.reason !== 'Sunday') {
+          skippedHolidays.push({ date: new Date(current), reason: check.reason });
+        }
+      } else {
+        counted++;
+      }
+    }
+
+    showResult({
+      answer: formatDisplayFull(current),
+      label: `${numDays} ${exclusions.weekends || exclusions.sundays || exclusions.federal || exclusions.usps || exclusions.custom ? 'business' : 'calendar'} days ${direction === 'forward' ? 'after' : 'before'} ${formatDisplay(start)}`,
+      calendarDays: calendarDays,
+      excluded: excludedCount,
+      skippedHolidays: skippedHolidays
+    });
+  }
+
+  function calcBetween() {
+    const aVal = document.getElementById('dateA').value;
+    const bVal = document.getElementById('dateB').value;
+    if (!aVal || !bVal) return;
+
+    let dateA = new Date(aVal + 'T00:00:00');
+    let dateB = new Date(bVal + 'T00:00:00');
+
+    const start = dateA < dateB ? dateA : dateB;
+    const end = dateA < dateB ? dateB : dateA;
+
+    const diffTime = end - start;
+    const calendarDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    const holidayMap = buildHolidayMap(start.getFullYear(), end.getFullYear());
+
+    let excludedCount = 0;
+    let countedDays = 0;
+    const skippedHolidays = [];
+    const current = new Date(start);
+
+    for (let i = 0; i < calendarDays; i++) {
+      current.setDate(current.getDate() + 1);
+      const check = isExcluded(current, holidayMap);
+      if (check.excluded) {
+        excludedCount++;
+        if (check.reason !== 'Weekend' && check.reason !== 'Sunday') {
+          skippedHolidays.push({ date: new Date(current), reason: check.reason });
+        }
+      } else {
+        countedDays++;
+      }
+    }
+
+    const hasExclusions = exclusions.weekends || exclusions.sundays || exclusions.federal || exclusions.usps || exclusions.custom;
+
+    showResult({
+      answer: hasExclusions ? `${countedDays} days` : `${calendarDays} days`,
+      label: `Between ${formatDisplay(start)} and ${formatDisplay(end)}`,
+      calendarDays: calendarDays,
+      excluded: excludedCount,
+      skippedHolidays: skippedHolidays
+    });
+  }
+
+  function showResult({ answer, label, calendarDays, excluded, skippedHolidays }) {
+    document.getElementById('resultAnswer').textContent = answer;
+    document.getElementById('resultLabel').textContent = label;
+    document.getElementById('calendarDays').textContent = calendarDays;
+    document.getElementById('excludedDays').textContent = excluded;
+
+    // Build details
+    const detailsContent = document.getElementById('detailsContent');
+    let html = '';
+
+    html += `<div class="detail-item"><span class="d-label">Total calendar days</span><span class="d-value">${calendarDays}</span></div>`;
+
+    if (exclusions.weekends) html += `<div class="detail-item"><span class="d-label">Weekends excluded</span><span class="d-value">Yes</span></div>`;
+    if (exclusions.sundays) html += `<div class="detail-item"><span class="d-label">Sundays excluded</span><span class="d-value">Yes</span></div>`;
+    if (exclusions.federal) html += `<div class="detail-item"><span class="d-label">US Federal Holidays</span><span class="d-value">Yes</span></div>`;
+    if (exclusions.usps) html += `<div class="detail-item"><span class="d-label">USPS Holidays</span><span class="d-value">Yes</span></div>`;
+    if (exclusions.custom) html += `<div class="detail-item"><span class="d-label">Custom dates excluded</span><span class="d-value">${customDates.length}</span></div>`;
+
+    html += `<div class="detail-item"><span class="d-label">Days excluded</span><span class="d-value">${excluded}</span></div>`;
+
+    if (skippedHolidays.length > 0) {
+      html += `<div class="holiday-list">`;
+      html += `<div class="holiday-list-title">Holidays Skipped</div>`;
+      skippedHolidays.forEach(h => {
+        html += `<div class="holiday-item"><span>${h.reason}</span><span class="h-date">${formatDisplay(h.date)}</span></div>`;
+      });
+      html += `</div>`;
+    }
+
+    detailsContent.innerHTML = html;
+
+    // Reset details toggle
+    document.getElementById('detailsToggle').classList.remove('open');
+    detailsContent.classList.remove('visible');
+
+    document.getElementById('resultCard').classList.add('visible');
+  }
+
+  // ── Details Toggle ──
+  document.getElementById('detailsToggle').addEventListener('click', () => {
+    const toggle = document.getElementById('detailsToggle');
+    const content = document.getElementById('detailsContent');
+    toggle.classList.toggle('open');
+    content.classList.toggle('visible');
+    toggle.innerHTML = toggle.classList.contains('open')
+      ? 'Hide Details <span class="arrow">&#9660;</span>'
+      : 'Show Details <span class="arrow">&#9660;</span>';
+  });
+
+})();
+</script>
+</body>
+</html>
