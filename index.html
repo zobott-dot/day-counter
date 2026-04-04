@@ -156,6 +156,29 @@ body {
   letter-spacing: -0.01em;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clear-btn:hover {
+  color: var(--accent);
+}
+
 .theme-toggle {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1007,7 +1030,10 @@ input:focus {
 <body>
 <div class="app">
   <div class="header">
-    <h1>Day Counter</h1>
+    <div class="header-left">
+      <h1>Day Counter</h1>
+      <button class="clear-btn" id="clearBtn">Clear</button>
+    </div>
     <div class="header-controls">
       <button class="info-btn" id="infoBtn" aria-label="About">&#9432;</button>
       <div class="picker-wrap">
@@ -1695,6 +1721,44 @@ input:focus {
         }, 2000);
       }).catch(() => {});
     }
+  });
+
+  // ── Clear Button ──
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    // Haptic
+    if (navigator.vibrate) navigator.vibrate(10);
+
+    // Reset dates to today
+    var todayVal = formatDateInput(new Date());
+    document.getElementById('startDate').value = todayVal;
+    document.getElementById('dateA').value = todayVal;
+    document.getElementById('dateB').value = '';
+
+    // Reset number of days and direction
+    document.getElementById('numDays').value = '30';
+    dirBtns.forEach(b => b.classList.remove('active'));
+    dirBtns[0].classList.add('active');
+    direction = 'forward';
+
+    // Deactivate all exclusion chips
+    chips.forEach(c => c.classList.remove('active'));
+    exclusions.weekends = false;
+    exclusions.sundays = false;
+    exclusions.federal = false;
+    exclusions.usps = false;
+    exclusions.custom = false;
+    document.getElementById('customSection').classList.remove('visible');
+
+    // Clear custom dates
+    customDates.length = 0;
+    renderCustomTags();
+
+    // Reset holidays year
+    holidayYear = new Date().getFullYear();
+    if (currentMode === 'holidays') renderHolidays();
+
+    // Hide result card
+    document.getElementById('resultCard').classList.remove('visible');
   });
 
   // ── Holidays Tab ──
