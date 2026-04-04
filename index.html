@@ -1975,7 +1975,27 @@ input:focus {
       delBtn.className = 'seg-del';
       delBtn.innerHTML = '&times;';
       delBtn.title = 'Remove';
-      delBtn.addEventListener('click', function() { removeSegment(i); });
+      (function(idx, btn) {
+        var pending = false, timer = null;
+        btn.addEventListener('click', function() {
+          if (!pending) {
+            pending = true;
+            btn.textContent = '?';
+            btn.style.fontSize = '0.7rem';
+            btn.style.fontWeight = '700';
+            timer = setTimeout(function() {
+              pending = false;
+              btn.innerHTML = '&times;';
+              btn.style.fontSize = '';
+              btn.style.fontWeight = '';
+            }, 3000);
+            return;
+          }
+          pending = false;
+          clearTimeout(timer);
+          removeSegment(idx);
+        });
+      })(i, delBtn);
       actions.appendChild(delBtn);
       topRow.appendChild(actions);
       row.appendChild(topRow);
@@ -2184,8 +2204,29 @@ input:focus {
   }
 
   // ── Clear Button ──
-  document.getElementById('clearBtn').addEventListener('click', function() {
-    pulseBtn(document.getElementById('clearBtn'));
+  var clearPending = false;
+  var clearTimer = null;
+  var clearBtnEl = document.getElementById('clearBtn');
+  clearBtnEl.addEventListener('click', function() {
+    if (!clearPending) {
+      clearPending = true;
+      clearBtnEl.textContent = 'Confirm?';
+      clearBtnEl.style.color = 'var(--danger)';
+      clearBtnEl.style.borderColor = 'var(--danger)';
+      clearTimer = setTimeout(function() {
+        clearPending = false;
+        clearBtnEl.textContent = 'Clear';
+        clearBtnEl.style.color = '';
+        clearBtnEl.style.borderColor = '';
+      }, 3000);
+      return;
+    }
+    clearPending = false;
+    clearTimeout(clearTimer);
+    clearBtnEl.textContent = 'Clear';
+    clearBtnEl.style.color = '';
+    clearBtnEl.style.borderColor = '';
+    pulseBtn(clearBtnEl);
 
     // Reset all date inputs to today
     var tv = formatDateInput(new Date());
