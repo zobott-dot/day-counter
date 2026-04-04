@@ -430,6 +430,16 @@ input:focus {
   transform: scale(0.98);
 }
 
+@keyframes btnPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: btnPulse 0.15s ease-out;
+}
+
 /* Result */
 .result-card {
   display: none;
@@ -1472,16 +1482,18 @@ input:focus {
 
   function calcAdd() {
     const startVal = document.getElementById('startDate').value;
-    const numDaysRaw = document.getElementById('numDays').value;
+    const numDaysEl = document.getElementById('numDays');
+    const numDaysRaw = numDaysEl.value.trim();
 
     if (!startVal || numDaysRaw === '') {
       return showError('Enter all required fields');
     }
 
-    var numDays = parseInt(numDaysRaw, 10);
-    if (isNaN(numDays) || numDays <= 0) {
+    var numDays = Number(numDaysRaw);
+    if (!Number.isFinite(numDays) || numDays <= 0 || Math.floor(numDays) <= 0) {
       return showError('Enter a positive number of days');
     }
+    numDays = Math.floor(numDays);
     if (numDays > 9999) {
       numDays = 9999;
       document.getElementById('numDays').value = '9999';
@@ -1594,6 +1606,16 @@ input:focus {
 
   let lastShareText = '';
 
+  function pulseBtn(el) {
+    el.classList.remove('pulse');
+    void el.offsetWidth;
+    el.classList.add('pulse');
+    el.addEventListener('animationend', function handler() {
+      el.classList.remove('pulse');
+      el.removeEventListener('animationend', handler);
+    });
+  }
+
   function showError(msg) {
     var rc = document.getElementById('resultCard');
     document.getElementById('resultAnswer').textContent = '';
@@ -1645,8 +1667,8 @@ input:focus {
     labelEl.classList.add('animate');
     statsEl.classList.add('animate');
 
-    // Haptic
-    if (navigator.vibrate) navigator.vibrate(10);
+    // Visual pulse on Calculate button
+    pulseBtn(document.getElementById('calcBtn'));
 
     // Build details
     const detailsContent = document.getElementById('detailsContent');
@@ -1723,7 +1745,7 @@ input:focus {
 
   // ── Clear Button ──
   document.getElementById('clearBtn').addEventListener('click', function() {
-    if (navigator.vibrate) navigator.vibrate(10);
+    pulseBtn(document.getElementById('clearBtn'));
 
     // Reset all date inputs to today
     var tv = formatDateInput(new Date());
