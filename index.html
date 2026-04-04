@@ -1723,23 +1723,30 @@ input:focus {
 
   // ── Clear Button ──
   document.getElementById('clearBtn').addEventListener('click', function() {
-    // Haptic
     if (navigator.vibrate) navigator.vibrate(10);
 
-    // Reset dates to today
-    var todayVal = formatDateInput(new Date());
-    document.getElementById('startDate').value = todayVal;
-    document.getElementById('dateA').value = todayVal;
-    document.getElementById('dateB').value = '';
+    // Reset all date inputs to today
+    var tv = formatDateInput(new Date());
+    var sd = document.getElementById('startDate');
+    var da = document.getElementById('dateA');
+    var db = document.getElementById('dateB');
+    sd.value = tv;
+    da.value = tv;
+    db.value = '';
+    // Force clear for date inputs that ignore empty string
+    db.type = 'text'; db.type = 'date';
 
-    // Reset number of days and direction
-    document.getElementById('numDays').value = '30';
-    dirBtns.forEach(b => b.classList.remove('active'));
-    dirBtns[0].classList.add('active');
+    // Clear number of days
+    document.getElementById('numDays').value = '';
+
+    // Reset direction to Forward
+    var allDir = document.querySelectorAll('.dir-btn');
+    allDir.forEach(function(b) { b.classList.remove('active'); });
+    allDir[0].classList.add('active');
     direction = 'forward';
 
     // Deactivate all exclusion chips
-    chips.forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
     exclusions.weekends = false;
     exclusions.sundays = false;
     exclusions.federal = false;
