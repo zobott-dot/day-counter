@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-color="slate">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,36 +14,106 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg: #f4f5f7;
-  --surface: #ffffff;
-  --border: #dfe1e6;
-  --text: #1a1d27;
-  --muted: #6b7185;
-  --accent: #2b6fdf;
-  --accent-hover: #2460c4;
-  --chip-bg: #eef0f4;
-  --chip-active-bg: #2b6fdf;
-  --chip-active-text: #ffffff;
-  --danger: #d9534f;
+/* ── Slate (default) ── */
+[data-color="slate"][data-theme="light"] {
+  --bg: #f4f5f7; --surface: #ffffff; --border: #dfe1e6; --text: #1a1d27;
+  --muted: #6b7185; --accent: #2b6fdf; --accent-hover: #2460c4;
+  --chip-bg: #eef0f4; --chip-active-bg: #2b6fdf; --chip-active-text: #fff;
+  --danger: #d9534f; --success: #34a853;
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
 }
+[data-color="slate"][data-theme="dark"] {
+  --bg: #0f1117; --surface: #1a1d27; --border: #2a2e3b; --text: #e8e9ed;
+  --muted: #8b8fa3; --accent: #4f8fff; --accent-hover: #3d7de8;
+  --chip-bg: #2a2e3b; --chip-active-bg: #4f8fff; --chip-active-text: #fff;
+  --danger: #e06060; --success: #4aba6a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+}
 
-[data-theme="dark"] {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --border: #2a2e3b;
-  --text: #e8e9ed;
-  --muted: #8b8fa3;
-  --accent: #4f8fff;
-  --accent-hover: #3d7de8;
-  --chip-bg: #2a2e3b;
-  --chip-active-bg: #4f8fff;
-  --chip-active-text: #ffffff;
-  --danger: #e06060;
-  --shadow: 0 1px 3px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+/* ── Evergreen ── */
+[data-color="evergreen"][data-theme="light"] {
+  --bg: #f2f5f0; --surface: #ffffff; --border: #d5ddd0; --text: #1a2420;
+  --muted: #627264; --accent: #2d8a5e; --accent-hover: #247a50;
+  --chip-bg: #e8ede5; --chip-active-bg: #2d8a5e; --chip-active-text: #fff;
+  --danger: #c9534f; --success: #2d8a5e;
+  --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+}
+[data-color="evergreen"][data-theme="dark"] {
+  --bg: #0d1512; --surface: #162420; --border: #253830; --text: #e4e8e2;
+  --muted: #8a9e8e; --accent: #3daa78; --accent-hover: #32965e;
+  --chip-bg: #253830; --chip-active-bg: #3daa78; --chip-active-text: #fff;
+  --danger: #e06060; --success: #3daa78;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ── Sandstone ── */
+[data-color="sandstone"][data-theme="light"] {
+  --bg: #f7f3ee; --surface: #fffcf7; --border: #e0d8cc; --text: #2a2218;
+  --muted: #7a6e5e; --accent: #b8772e; --accent-hover: #a06825;
+  --chip-bg: #f0e9de; --chip-active-bg: #b8772e; --chip-active-text: #fff;
+  --danger: #c45040; --success: #7a9a3a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+}
+[data-color="sandstone"][data-theme="dark"] {
+  --bg: #151210; --surface: #211e1a; --border: #3a332a; --text: #ece5da;
+  --muted: #9a8e7e; --accent: #d4943a; --accent-hover: #c08530;
+  --chip-bg: #3a332a; --chip-active-bg: #d4943a; --chip-active-text: #fff;
+  --danger: #e06050; --success: #a0b858;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ── Ink ── */
+[data-color="ink"][data-theme="light"] {
+  --bg: #fafafa; --surface: #ffffff; --border: #e0e0e2; --text: #1a1a1c;
+  --muted: #6e6e76; --accent: #c93c3c; --accent-hover: #b33232;
+  --chip-bg: #f0f0f2; --chip-active-bg: #c93c3c; --chip-active-text: #fff;
+  --danger: #c93c3c; --success: #34a853;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+[data-color="ink"][data-theme="dark"] {
+  --bg: #09090b; --surface: #141416; --border: #28282c; --text: #eaeaec;
+  --muted: #8a8a92; --accent: #e05252; --accent-hover: #cc4444;
+  --chip-bg: #28282c; --chip-active-bg: #e05252; --chip-active-text: #fff;
+  --danger: #e05252; --success: #4aba6a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* ── Nordic ── */
+[data-color="nordic"][data-theme="light"] {
+  --bg: #f0f3f7; --surface: #ffffff; --border: #d6dce6; --text: #1a2030;
+  --muted: #667888; --accent: #4a8bb5; --accent-hover: #3d7aa3;
+  --chip-bg: #e4eaf0; --chip-active-bg: #4a8bb5; --chip-active-text: #fff;
+  --danger: #c9534f; --success: #3a9a6a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+}
+[data-color="nordic"][data-theme="dark"] {
+  --bg: #0c1019; --surface: #161c28; --border: #283444; --text: #dfe4eb;
+  --muted: #8898aa; --accent: #6aacda; --accent-hover: #5a9cc8;
+  --chip-bg: #283444; --chip-active-bg: #6aacda; --chip-active-text: #fff;
+  --danger: #e06060; --success: #5abf8a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ── Dusk ── */
+[data-color="dusk"][data-theme="light"] {
+  --bg: #f5f3f9; --surface: #ffffff; --border: #ddd8e6; --text: #201e30;
+  --muted: #736e85; --accent: #6f60b5; --accent-hover: #5f50a5;
+  --chip-bg: #ece8f2; --chip-active-bg: #6f60b5; --chip-active-text: #fff;
+  --danger: #c94f5a; --success: #4a9a6a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+}
+[data-color="dusk"][data-theme="dark"] {
+  --bg: #11101a; --surface: #1c1a28; --border: #302c42; --text: #e0dce8;
+  --muted: #908aaa; --accent: #8b7ec8; --accent-hover: #7b6eb8;
+  --chip-bg: #302c42; --chip-active-bg: #8b7ec8; --chip-active-text: #fff;
+  --danger: #e06070; --success: #6abf8a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 body {
@@ -133,7 +203,7 @@ body {
 .mode-tab.active {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(47,111,223,0.25);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 /* Card */
@@ -326,7 +396,7 @@ input:focus {
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 2px 8px rgba(47,111,223,0.3);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .calc-btn:hover {
@@ -510,8 +580,8 @@ input:focus {
 }
 
 .share-btn.copied {
-  border-color: #34a853;
-  color: #34a853;
+  border-color: var(--success);
+  color: var(--success);
 }
 
 /* Holidays Tab */
@@ -623,13 +693,145 @@ input:focus {
 .calc-wrap.hidden {
   display: none;
 }
+
+/* Header Controls */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-trigger {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.color-trigger:hover {
+  border-color: var(--accent);
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: background 0.25s;
+}
+
+/* Theme Picker Popover */
+.theme-picker {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  width: 220px;
+}
+
+.theme-picker.open {
+  display: block;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.theme-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-swatch:hover {
+  background: var(--chip-bg);
+}
+
+.theme-swatch.active {
+  border-color: var(--accent);
+}
+
+.swatch-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.swatch-circle .check {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.theme-swatch.active .swatch-circle .check {
+  display: flex;
+}
+
+.swatch-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+}
+
+.picker-wrap {
+  position: relative;
+}
+
+/* Smooth transitions */
+.card, .mode-tabs, input[type="date"], input[type="number"],
+.chip, .dir-btn, .result-card, .stat, .details-toggle,
+.details-content, .share-btn, .year-nav button, .hol-entry,
+.holiday-col-title, .custom-tag, .add-date-btn, .calc-btn,
+.theme-toggle, .color-trigger, .theme-picker {
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <h1>Day Counter</h1>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">&#9790;</button>
+    <div class="header-controls">
+      <div class="picker-wrap">
+        <button class="color-trigger" id="colorTrigger" aria-label="Change color theme"><div class="color-dot"></div></button>
+        <div class="theme-picker" id="themePicker">
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">&#9790;</button>
+    </div>
   </div>
 
   <div class="mode-tabs">
@@ -742,22 +944,76 @@ input:focus {
 
 <script>
 (function() {
-  // ── Theme ──
+  // ── Theme System ──
   const themeToggle = document.getElementById('themeToggle');
+  const colorTrigger = document.getElementById('colorTrigger');
+  const themePicker = document.getElementById('themePicker');
+  const themeGrid = document.getElementById('themeGrid');
   const root = document.documentElement;
 
-  function setTheme(theme) {
-    root.setAttribute('data-theme', theme);
-    themeToggle.innerHTML = theme === 'dark' ? '&#9788;' : '&#9790;';
-    localStorage.setItem('dayCounterTheme', theme);
+  const themes = [
+    { id: 'slate', name: 'Slate', accent: { light: '#2b6fdf', dark: '#4f8fff' } },
+    { id: 'evergreen', name: 'Evergreen', accent: { light: '#2d8a5e', dark: '#3daa78' } },
+    { id: 'sandstone', name: 'Sandstone', accent: { light: '#b8772e', dark: '#d4943a' } },
+    { id: 'ink', name: 'Ink', accent: { light: '#c93c3c', dark: '#e05252' } },
+    { id: 'nordic', name: 'Nordic', accent: { light: '#4a8bb5', dark: '#6aacda' } },
+    { id: 'dusk', name: 'Dusk', accent: { light: '#6f60b5', dark: '#8b7ec8' } }
+  ];
+
+  function setMode(mode) {
+    root.setAttribute('data-theme', mode);
+    themeToggle.innerHTML = mode === 'dark' ? '&#9788;' : '&#9790;';
+    localStorage.setItem('dayCounterTheme', mode);
+    updateSwatches();
   }
 
-  const savedTheme = localStorage.getItem('dayCounterTheme') ||
-    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  setTheme(savedTheme);
+  function setColor(colorId) {
+    root.setAttribute('data-color', colorId);
+    localStorage.setItem('dayCounterColor', colorId);
+    updateSwatches();
+  }
 
-  themeToggle.addEventListener('click', () => {
-    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  function updateSwatches() {
+    var mode = root.getAttribute('data-theme');
+    var color = root.getAttribute('data-color');
+    themeGrid.querySelectorAll('.theme-swatch').forEach(function(sw) {
+      sw.classList.toggle('active', sw.dataset.color === color);
+    });
+  }
+
+  // Build grid
+  themes.forEach(function(t) {
+    var sw = document.createElement('div');
+    sw.className = 'theme-swatch';
+    sw.dataset.color = t.id;
+    sw.innerHTML = '<div class="swatch-circle" style="background:' + t.accent.dark + '"><span class="check">&#10003;</span></div><span class="swatch-label">' + t.name + '</span>';
+    sw.addEventListener('click', function() {
+      setColor(t.id);
+      themePicker.classList.remove('open');
+    });
+    themeGrid.appendChild(sw);
+  });
+
+  // Restore saved preferences
+  var savedMode = localStorage.getItem('dayCounterTheme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  var savedColor = localStorage.getItem('dayCounterColor') || 'slate';
+  setColor(savedColor);
+  setMode(savedMode);
+
+  themeToggle.addEventListener('click', function() {
+    setMode(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  colorTrigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    themePicker.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!themePicker.contains(e.target) && e.target !== colorTrigger) {
+      themePicker.classList.remove('open');
+    }
   });
 
   // ── Mode Tabs ──
