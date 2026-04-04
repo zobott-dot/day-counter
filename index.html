@@ -737,10 +737,9 @@ input:focus {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   box-shadow: var(--shadow-md);
   z-index: 100;
-  width: 216px;
 }
 
 .theme-picker.open {
@@ -749,18 +748,20 @@ input:focus {
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px 8px;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: auto auto;
+  gap: 8px;
+  justify-content: center;
 }
 
 .theme-swatch {
+  width: 56px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
+  gap: 4px;
   cursor: pointer;
-  padding: 8px 4px;
+  padding: 6px 0;
   border-radius: 8px;
   border: 2px solid transparent;
   transition: all 0.15s;
@@ -777,10 +778,9 @@ input:focus {
 }
 
 .swatch-circle {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
   border-radius: 50%;
   position: relative;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
@@ -793,7 +793,7 @@ input:focus {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
 }
 
@@ -802,10 +802,15 @@ input:focus {
 }
 
 .swatch-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 600;
   color: var(--muted);
   text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .picker-wrap {
