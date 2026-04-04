@@ -156,26 +156,26 @@ body {
   letter-spacing: -0.01em;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .clear-btn {
-  background: none;
-  border: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.2s;
+  height: 38px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 
 .clear-btn:hover {
+  border-color: var(--accent);
   color: var(--accent);
 }
 
@@ -1030,11 +1030,9 @@ input:focus {
 <body>
 <div class="app">
   <div class="header">
-    <div class="header-left">
-      <h1>Day Counter</h1>
-      <button class="clear-btn" id="clearBtn">Clear</button>
-    </div>
+    <h1>Day Counter</h1>
     <div class="header-controls">
+      <button class="clear-btn" id="clearBtn">Clear</button>
       <button class="info-btn" id="infoBtn" aria-label="About">&#9432;</button>
       <div class="picker-wrap">
         <button class="color-trigger" id="colorTrigger" aria-label="Change color theme"><div class="color-dot"></div></button>
