@@ -428,6 +428,43 @@ input:focus {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes resultRevealPrimary {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes resultRevealSecondary {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-answer.animate {
+  animation: resultRevealPrimary 0.3s ease-out both;
+}
+
+.result-label.animate {
+  animation: resultRevealPrimary 0.3s ease-out both;
+}
+
+.result-stats.animate {
+  animation: resultRevealSecondary 0.3s ease-out 0.1s both;
+}
+
+.result-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.result-message {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 12px 0;
+}
+
 .result-answer {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.6rem;
@@ -825,6 +862,146 @@ input:focus {
 .theme-toggle, .color-trigger, .theme-picker {
   transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
+
+/* Info Button */
+.info-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.info-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* About Modal */
+.about-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-backdrop.open {
+  display: flex;
+}
+
+.about-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px 20px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.about-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.about-version {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.about-desc {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.about-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.about-credit {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.about-close {
+  padding: 8px 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.about-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Home Screen Nudge */
+.hs-nudge {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  z-index: 150;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+}
+
+.hs-nudge.visible {
+  display: flex;
+}
+
+.hs-nudge-text {
+  flex: 1;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.hs-nudge-icon {
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.hs-nudge-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
 </style>
 </head>
 <body>
@@ -832,6 +1009,7 @@ input:focus {
   <div class="header">
     <h1>Day Counter</h1>
     <div class="header-controls">
+      <button class="info-btn" id="infoBtn" aria-label="About">&#9432;</button>
       <div class="picker-wrap">
         <button class="color-trigger" id="colorTrigger" aria-label="Change color theme"><div class="color-dot"></div></button>
         <div class="theme-picker" id="themePicker">
@@ -857,7 +1035,7 @@ input:focus {
       </div>
       <div class="field">
         <label for="numDays">Number of Days</label>
-        <input type="number" id="numDays" min="0" value="30" inputmode="numeric">
+        <input type="number" id="numDays" min="0" max="9999" value="30" inputmode="numeric">
       </div>
       <div class="field">
         <label>Direction</label>
@@ -932,7 +1110,9 @@ input:focus {
   <div class="result-card" id="resultCard">
     <div class="result-answer" id="resultAnswer"></div>
     <div class="result-label" id="resultLabel"></div>
-    <div class="result-stats">
+    <div class="result-note" id="resultNote" style="display:none;"></div>
+    <div class="result-message" id="resultMessage" style="display:none;"></div>
+    <div class="result-stats" id="resultStats">
       <div class="stat">
         <div class="stat-value" id="calendarDays">—</div>
         <div class="stat-label">Calendar Days</div>
@@ -948,6 +1128,23 @@ input:focus {
     <div class="details-content" id="detailsContent"></div>
     <button class="share-btn" id="shareBtn">Share Result</button>
   </div>
+</div>
+
+<div class="about-backdrop" id="aboutBackdrop">
+  <div class="about-modal">
+    <div class="about-title">Day Counter</div>
+    <div class="about-version">v1.0</div>
+    <div class="about-desc">A mobile-first business day calculator with configurable exclusions.</div>
+    <div class="about-note">Supports both US Federal and USPS holiday calendars. USPS does not observe Columbus Day but does observe the day after Thanksgiving.</div>
+    <div class="about-credit">Built by Dave Zobott</div>
+    <button class="about-close" id="aboutClose">Close</button>
+  </div>
+</div>
+
+<div class="hs-nudge" id="hsNudge">
+  <span class="hs-nudge-icon">&#8679;</span>
+  <span class="hs-nudge-text">Add to your home screen for quick access</span>
+  <button class="hs-nudge-close" id="hsNudgeClose" aria-label="Dismiss">&times;</button>
 </div>
 
 <script>
@@ -1251,8 +1448,20 @@ input:focus {
 
   function calcAdd() {
     const startVal = document.getElementById('startDate').value;
-    const numDays = parseInt(document.getElementById('numDays').value, 10);
-    if (!startVal || isNaN(numDays) || numDays < 0) return;
+    const numDaysRaw = document.getElementById('numDays').value;
+
+    if (!startVal || numDaysRaw === '') {
+      return showError('Enter all required fields');
+    }
+
+    var numDays = parseInt(numDaysRaw, 10);
+    if (isNaN(numDays) || numDays <= 0) {
+      return showError('Enter a positive number of days');
+    }
+    if (numDays > 9999) {
+      numDays = 9999;
+      document.getElementById('numDays').value = '9999';
+    }
 
     const start = new Date(startVal + 'T00:00:00');
     const dir = direction === 'forward' ? 1 : -1;
@@ -1295,20 +1504,28 @@ input:focus {
       calendarDays: calendarDays,
       excluded: excludedCount,
       skippedHolidays: skippedHolidays,
-      shareText: shareText
+      shareText: shareText,
+      note: parseInt(numDaysRaw, 10) > 9999 ? 'Maximum 9999 days' : ''
     });
   }
 
   function calcBetween() {
     const aVal = document.getElementById('dateA').value;
     const bVal = document.getElementById('dateB').value;
-    if (!aVal || !bVal) return;
+    if (!aVal || !bVal) {
+      return showError('Enter all required fields');
+    }
 
     let dateA = new Date(aVal + 'T00:00:00');
     let dateB = new Date(bVal + 'T00:00:00');
 
-    const start = dateA < dateB ? dateA : dateB;
-    const end = dateA < dateB ? dateB : dateA;
+    if (dateA.getTime() === dateB.getTime()) {
+      return showError('0 days \u2014 start and end dates are the same');
+    }
+
+    var datesSwapped = dateA > dateB;
+    const start = datesSwapped ? dateB : dateA;
+    const end = datesSwapped ? dateA : dateB;
 
     const diffTime = end - start;
     const calendarDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -1346,18 +1563,66 @@ input:focus {
       calendarDays: calendarDays,
       excluded: excludedCount,
       skippedHolidays: skippedHolidays,
-      shareText: shareText
+      shareText: shareText,
+      note: datesSwapped ? 'Dates were swapped to show earliest \u2192 latest' : ''
     });
   }
 
   let lastShareText = '';
 
-  function showResult({ answer, label, calendarDays, excluded, skippedHolidays, shareText }) {
+  function showError(msg) {
+    var rc = document.getElementById('resultCard');
+    document.getElementById('resultAnswer').textContent = '';
+    document.getElementById('resultLabel').textContent = '';
+    document.getElementById('resultNote').style.display = 'none';
+    document.getElementById('resultMessage').textContent = msg;
+    document.getElementById('resultMessage').style.display = 'block';
+    document.getElementById('resultStats').style.display = 'none';
+    document.getElementById('detailsToggle').style.display = 'none';
+    document.getElementById('detailsContent').classList.remove('visible');
+    document.getElementById('shareBtn').style.display = 'none';
+    lastShareText = '';
+    rc.classList.add('visible');
+  }
+
+  function showResult({ answer, label, calendarDays, excluded, skippedHolidays, shareText, note }) {
     lastShareText = shareText || '';
-    document.getElementById('resultAnswer').textContent = answer;
-    document.getElementById('resultLabel').textContent = label;
+
+    // Reset error state
+    document.getElementById('resultMessage').style.display = 'none';
+    document.getElementById('resultStats').style.display = '';
+    document.getElementById('detailsToggle').style.display = '';
+    document.getElementById('shareBtn').style.display = '';
+
+    var answerEl = document.getElementById('resultAnswer');
+    var labelEl = document.getElementById('resultLabel');
+    var statsEl = document.getElementById('resultStats');
+
+    answerEl.textContent = answer;
+    labelEl.textContent = label;
     document.getElementById('calendarDays').textContent = calendarDays;
     document.getElementById('excludedDays').textContent = excluded;
+
+    // Note
+    var noteEl = document.getElementById('resultNote');
+    if (note) {
+      noteEl.textContent = note;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
+
+    // Animate
+    answerEl.classList.remove('animate');
+    labelEl.classList.remove('animate');
+    statsEl.classList.remove('animate');
+    void answerEl.offsetWidth;
+    answerEl.classList.add('animate');
+    labelEl.classList.add('animate');
+    statsEl.classList.add('animate');
+
+    // Haptic
+    if (navigator.vibrate) navigator.vibrate(10);
 
     // Build details
     const detailsContent = document.getElementById('detailsContent');
@@ -1458,6 +1723,38 @@ input:focus {
       return `<div class="hol-entry"><div class="hol-name">${h.name}${tag}</div><div class="hol-date">${formatDisplayFull(h.date)}</div></div>`;
     }).join('');
   }
+
+  // ── About Modal ──
+  var aboutBackdrop = document.getElementById('aboutBackdrop');
+  document.getElementById('infoBtn').addEventListener('click', function() {
+    aboutBackdrop.classList.add('open');
+  });
+  document.getElementById('aboutClose').addEventListener('click', function() {
+    aboutBackdrop.classList.remove('open');
+  });
+  aboutBackdrop.addEventListener('click', function(e) {
+    if (e.target === aboutBackdrop) aboutBackdrop.classList.remove('open');
+  });
+
+  // ── Home Screen Nudge (mobile Safari only) ──
+  (function() {
+    var ua = navigator.userAgent;
+    var isSafariMobile = /iP(hone|od|ad)/.test(ua) && /WebKit/.test(ua) && !/(CriOS|FxiOS|OPiOS|mercury)/.test(ua);
+    var isStandalone = window.navigator.standalone === true;
+    if (!isSafariMobile || isStandalone) return;
+    if (localStorage.getItem('dayCounterNudgeDismissed')) return;
+
+    setTimeout(function() {
+      document.getElementById('hsNudge').classList.add('visible');
+      document.querySelector('.app').style.paddingBottom = '80px';
+    }, 3000);
+
+    document.getElementById('hsNudgeClose').addEventListener('click', function() {
+      document.getElementById('hsNudge').classList.remove('visible');
+      document.querySelector('.app').style.paddingBottom = '';
+      localStorage.setItem('dayCounterNudgeDismissed', '1');
+    });
+  })();
 
 })();
 </script>
