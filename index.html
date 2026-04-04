@@ -760,17 +760,26 @@ input:focus {
 }
 
 .seg-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.seg-row:last-of-type {
+  border-bottom: none;
+}
+
+.seg-row-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
   margin-bottom: 8px;
-  flex-wrap: wrap;
 }
 
 .seg-name {
   flex: 1;
   min-width: 0;
-  padding: 7px 10px;
+  padding: 8px 10px;
+  min-height: 38px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
@@ -782,59 +791,65 @@ input:focus {
 
 .seg-name:focus { outline: none; border-color: var(--accent); }
 
-.seg-num {
-  width: 56px;
-  padding: 7px 6px;
+.seg-row-dates {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.seg-row-dates input[type="date"] {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 8px;
+  min-height: 38px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  text-align: center;
+  font-size: 0.8rem;
   transition: border-color 0.2s;
   -webkit-appearance: none;
-  -moz-appearance: textfield;
 }
 
-.seg-num:focus { outline: none; border-color: var(--accent); }
+.seg-row-dates input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 
-.seg-num-label {
-  font-size: 0.6rem;
-  font-weight: 600;
+.seg-duration {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  text-align: center;
-  display: block;
-  margin-bottom: 2px;
+  padding: 2px 0;
 }
 
-.seg-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.seg-duration.invalid {
+  color: var(--danger);
 }
 
 .seg-actions {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
+  flex-shrink: 0;
 }
 
 .seg-arrow, .seg-del {
   background: none;
   border: none;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   cursor: pointer;
-  padding: 1px 4px;
+  padding: 2px 5px;
   line-height: 1;
   border-radius: 4px;
   transition: color 0.15s;
 }
 
-.seg-arrow:hover, .seg-del:hover {
+.seg-arrow:hover {
   color: var(--accent);
 }
 
@@ -844,7 +859,6 @@ input:focus {
 }
 
 .seg-del:hover {
-  color: var(--danger);
   opacity: 0.7;
 }
 
@@ -852,7 +866,7 @@ input:focus {
   background: none;
   border: 1px dashed var(--border);
   border-radius: 6px;
-  padding: 7px 14px;
+  padding: 8px 14px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
@@ -860,7 +874,7 @@ input:focus {
   cursor: pointer;
   transition: all 0.15s;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 10px;
 }
 
 .seg-add-btn:hover {
@@ -873,7 +887,9 @@ input:focus {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--accent);
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
 }
 
 .exclusions-wrap {
@@ -1464,6 +1480,7 @@ input:focus {
       chip.classList.toggle('active', exclusions[ex]);
 
       document.getElementById('customSection').classList.toggle('visible', exclusions.custom);
+      if (segOpen) recalcSegments();
     });
   });
 
@@ -1625,19 +1642,13 @@ input:focus {
 
     // Segment validation
     if (segOpen) {
-      var segTotalDays = 0, segTotalOverlap = 0;
       for (var si = 0; si < segments.length; si++) {
-        var sd = parseInt(segments[si].days, 10);
-        if (isNaN(sd) || sd < 1) return showError('Each segment must have at least 1 day');
-        segTotalDays += sd;
-        if (si > 0) {
-          var sov = parseInt(segments[si].overlap, 10) || 0;
-          var prevD = parseInt(segments[si - 1].days, 10) || 0;
-          if (sov > sd || sov > prevD) return showError('Overlap cannot exceed segment duration');
-          segTotalOverlap += sov;
-        }
+        var sg = segments[si];
+        if (!sg.start || !sg.end) return showError('Enter start and end dates for all segments');
+        var sD = new Date(sg.start + 'T00:00:00');
+        var eD = new Date(sg.end + 'T00:00:00');
+        if (eD < sD) return showError('Segment "' + (sg.name || 'Segment ' + (si+1)) + '" has an invalid date range');
       }
-      if (segTotalOverlap >= segTotalDays) return showError('Overlaps exceed total duration');
     }
 
     var numDays = Number(numDaysRaw);
@@ -1891,15 +1902,15 @@ input:focus {
   // ── Segment Builder ──
   var segments = [];
   var segOpen = false;
-  var segToggle = document.getElementById('segToggle');
+  var segToggleBtn = document.getElementById('segToggle');
   var segSection = document.getElementById('segSection');
   var segRowsEl = document.getElementById('segRows');
   var numDaysInput = document.getElementById('numDays');
 
-  segToggle.addEventListener('click', function() {
+  segToggleBtn.addEventListener('click', function() {
     segOpen = !segOpen;
     segSection.classList.toggle('visible', segOpen);
-    segToggle.textContent = segOpen ? 'Use single value' : 'Build from segments';
+    segToggleBtn.textContent = segOpen ? 'Use single value' : 'Build from segments';
     if (segOpen) {
       numDaysInput.readOnly = true;
       numDaysInput.style.background = 'var(--chip-bg)';
@@ -1921,7 +1932,7 @@ input:focus {
   });
 
   function addSegment() {
-    segments.push({ name: '', days: '', overlap: 0 });
+    segments.push({ name: '', start: '', end: '' });
   }
 
   function renderSegments() {
@@ -1930,58 +1941,20 @@ input:focus {
       var row = document.createElement('div');
       row.className = 'seg-row';
 
+      // Row 1: name + actions
+      var topRow = document.createElement('div');
+      topRow.className = 'seg-row-top';
+
       var nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.className = 'seg-name';
       nameInput.placeholder = 'Segment ' + (i + 1);
       nameInput.value = seg.name;
       nameInput.addEventListener('input', function() { seg.name = this.value; });
-
-      var daysCol = document.createElement('div');
-      daysCol.className = 'seg-col';
-      var daysLabel = document.createElement('span');
-      daysLabel.className = 'seg-num-label';
-      daysLabel.textContent = 'Days';
-      var daysInput = document.createElement('input');
-      daysInput.type = 'number';
-      daysInput.className = 'seg-num';
-      daysInput.min = '1';
-      daysInput.inputMode = 'numeric';
-      daysInput.value = seg.days === '' ? '' : seg.days;
-      daysInput.addEventListener('input', function() {
-        seg.days = this.value === '' ? '' : parseInt(this.value, 10);
-        recalcSegments();
-      });
-      daysCol.appendChild(daysLabel);
-      daysCol.appendChild(daysInput);
-
-      row.appendChild(nameInput);
-      row.appendChild(daysCol);
-
-      if (i > 0) {
-        var ovCol = document.createElement('div');
-        ovCol.className = 'seg-col';
-        var ovLabel = document.createElement('span');
-        ovLabel.className = 'seg-num-label';
-        ovLabel.textContent = 'Overlap';
-        var ovInput = document.createElement('input');
-        ovInput.type = 'number';
-        ovInput.className = 'seg-num';
-        ovInput.min = '0';
-        ovInput.inputMode = 'numeric';
-        ovInput.value = seg.overlap || 0;
-        ovInput.addEventListener('input', function() {
-          seg.overlap = parseInt(this.value, 10) || 0;
-          recalcSegments();
-        });
-        ovCol.appendChild(ovLabel);
-        ovCol.appendChild(ovInput);
-        row.appendChild(ovCol);
-      }
+      topRow.appendChild(nameInput);
 
       var actions = document.createElement('div');
       actions.className = 'seg-actions';
-
       if (i > 0) {
         var upBtn = document.createElement('button');
         upBtn.className = 'seg-arrow';
@@ -1998,18 +1971,137 @@ input:focus {
         downBtn.addEventListener('click', function() { moveSegment(i, 1); });
         actions.appendChild(downBtn);
       }
-      if (segments.length > 1) {
-        var delBtn = document.createElement('button');
-        delBtn.className = 'seg-del';
-        delBtn.innerHTML = '&times;';
-        delBtn.title = 'Remove';
-        delBtn.addEventListener('click', function() { removeSegment(i); });
-        actions.appendChild(delBtn);
-      }
+      var delBtn = document.createElement('button');
+      delBtn.className = 'seg-del';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Remove';
+      delBtn.addEventListener('click', function() { removeSegment(i); });
+      actions.appendChild(delBtn);
+      topRow.appendChild(actions);
+      row.appendChild(topRow);
 
-      row.appendChild(actions);
+      // Row 2: dates
+      var datesRow = document.createElement('div');
+      datesRow.className = 'seg-row-dates';
+
+      var startInput = document.createElement('input');
+      startInput.type = 'date';
+      startInput.value = seg.start;
+      startInput.addEventListener('change', function() {
+        seg.start = this.value;
+        recalcSegments();
+        updateDuration(i);
+      });
+
+      var endInput = document.createElement('input');
+      endInput.type = 'date';
+      endInput.value = seg.end;
+      endInput.addEventListener('change', function() {
+        seg.end = this.value;
+        recalcSegments();
+        updateDuration(i);
+      });
+
+      datesRow.appendChild(startInput);
+      datesRow.appendChild(endInput);
+      row.appendChild(datesRow);
+
+      // Row 3: duration
+      var durEl = document.createElement('div');
+      durEl.className = 'seg-duration';
+      durEl.dataset.segIdx = i;
+      row.appendChild(durEl);
+
       segRowsEl.appendChild(row);
+      updateDuration(i);
     });
+  }
+
+  function countWorkingDays(startStr, endStr) {
+    // Count days inclusive, respecting current exclusions
+    if (!startStr || !endStr) return null;
+    var s = new Date(startStr + 'T00:00:00');
+    var e = new Date(endStr + 'T00:00:00');
+    if (e < s) return -1;
+    var hmap = buildHolidayMap(s.getFullYear(), e.getFullYear());
+    var count = 0;
+    var cur = new Date(s);
+    while (cur <= e) {
+      var chk = isExcluded(cur, hmap);
+      if (!chk.excluded) count++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return count;
+  }
+
+  function updateDuration(idx) {
+    var el = segRowsEl.querySelector('[data-seg-idx="' + idx + '"]');
+    if (!el) return;
+    var seg = segments[idx];
+    if (!seg.start || !seg.end) {
+      el.textContent = '';
+      el.classList.remove('invalid');
+      return;
+    }
+    var days = countWorkingDays(seg.start, seg.end);
+    if (days === -1) {
+      el.textContent = 'Invalid range';
+      el.classList.add('invalid');
+    } else {
+      el.textContent = '\u2192 ' + days + ' day' + (days !== 1 ? 's' : '');
+      el.classList.remove('invalid');
+    }
+  }
+
+  function recalcSegments() {
+    // Collect all unique non-excluded dates across all segments
+    var allDates = new Set();
+    var perSegDates = [];
+    var anyInvalid = false;
+
+    for (var k = 0; k < segments.length; k++) {
+      var seg = segments[k];
+      var segDates = new Set();
+      if (seg.start && seg.end) {
+        var s = new Date(seg.start + 'T00:00:00');
+        var e = new Date(seg.end + 'T00:00:00');
+        if (e < s) { anyInvalid = true; perSegDates.push(segDates); continue; }
+        var hmap = buildHolidayMap(s.getFullYear(), e.getFullYear());
+        var cur = new Date(s);
+        while (cur <= e) {
+          var chk = isExcluded(cur, hmap);
+          if (!chk.excluded) {
+            var dk = dateKey(cur);
+            allDates.add(dk);
+            segDates.add(dk);
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+      }
+      perSegDates.push(segDates);
+    }
+
+    // Count overlapping days (dates appearing in more than one segment)
+    var totalPerSeg = 0;
+    for (var m = 0; m < perSegDates.length; m++) {
+      totalPerSeg += perSegDates[m].size;
+    }
+    var overlapDays = totalPerSeg - allDates.size;
+
+    var uniqueDays = allDates.size;
+    numDaysInput.value = uniqueDays > 0 ? uniqueDays : '';
+
+    var totalEl = document.getElementById('segTotal');
+    if (uniqueDays > 0 || anyInvalid) {
+      var text = 'Total: ' + uniqueDays + ' day' + (uniqueDays !== 1 ? 's' : '');
+      if (overlapDays > 0) text += ' (' + overlapDays + 'd overlap)';
+      totalEl.textContent = text;
+    } else {
+      totalEl.textContent = '';
+    }
+
+    // Update all duration labels
+    for (var u = 0; u < segments.length; u++) updateDuration(u);
   }
 
   function moveSegment(i, dir) {
@@ -2018,63 +2110,72 @@ input:focus {
     var tmp = segments[i];
     segments[i] = segments[j];
     segments[j] = tmp;
-    // First segment can't have overlap
-    segments[0].overlap = 0;
     renderSegments();
     recalcSegments();
   }
 
   function removeSegment(i) {
     segments.splice(i, 1);
-    if (segments.length > 0) segments[0].overlap = 0;
+    if (segments.length === 0) {
+      resetSegments();
+      return;
+    }
     renderSegments();
     recalcSegments();
   }
 
-  function recalcSegments() {
-    var totalDays = 0;
-    var totalOverlap = 0;
-    for (var k = 0; k < segments.length; k++) {
-      var d = parseInt(segments[k].days, 10);
-      if (!isNaN(d) && d > 0) totalDays += d;
-      if (k > 0) {
-        var ov = parseInt(segments[k].overlap, 10) || 0;
-        if (ov > 0) totalOverlap += ov;
-      }
-    }
-    var net = totalDays - totalOverlap;
-    numDaysInput.value = net > 0 ? net : '';
-    var totalEl = document.getElementById('segTotal');
-    if (totalDays > 0) {
-      var text = 'Total: ' + net + ' days';
-      if (totalOverlap > 0) text += ' (' + totalOverlap + 'd overlap)';
-      totalEl.textContent = text;
-    } else {
-      totalEl.textContent = '';
-    }
-  }
-
   function getSegmentShareText() {
     if (!segOpen || segments.length === 0) return '';
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var parts = [];
+    var totalOverlap = 0;
+
+    // Calc overlap for share text
+    var allD = new Set();
+    var perS = [];
     for (var k = 0; k < segments.length; k++) {
-      var s = segments[k];
-      var d = parseInt(s.days, 10);
-      if (isNaN(d) || d <= 0) continue;
-      var name = s.name || ('Segment ' + (k + 1));
-      var label = name + ' (' + d + 'd';
-      if (k > 0 && s.overlap > 0) label += ', ' + s.overlap + 'd overlap';
-      label += ')';
-      parts.push(label);
+      var seg = segments[k];
+      var sd = new Set();
+      if (seg.start && seg.end) {
+        var a = new Date(seg.start + 'T00:00:00');
+        var b = new Date(seg.end + 'T00:00:00');
+        if (b >= a) {
+          var hm = buildHolidayMap(a.getFullYear(), b.getFullYear());
+          var c = new Date(a);
+          while (c <= b) {
+            if (!isExcluded(c, hm).excluded) { var dk2 = dateKey(c); allD.add(dk2); sd.add(dk2); }
+            c.setDate(c.getDate() + 1);
+          }
+        }
+      }
+      perS.push(sd);
     }
-    return parts.length > 0 ? '\n  Segments: ' + parts.join(' \u2192 ') : '';
+    var sumPerSeg = 0;
+    for (var p = 0; p < perS.length; p++) sumPerSeg += perS[p].size;
+    totalOverlap = sumPerSeg - allD.size;
+
+    for (var j = 0; j < segments.length; j++) {
+      var sg = segments[j];
+      if (!sg.start || !sg.end) continue;
+      var name = sg.name || ('Segment ' + (j + 1));
+      var sDate = new Date(sg.start + 'T00:00:00');
+      var eDate = new Date(sg.end + 'T00:00:00');
+      var sStr = months[sDate.getMonth()] + ' ' + sDate.getDate();
+      var eStr = months[eDate.getMonth()] + ' ' + eDate.getDate();
+      parts.push(name + ' (' + sStr + '\u2013' + eStr + ')');
+    }
+
+    var result = '';
+    if (parts.length > 0) result += '\n  Segments: ' + parts.join(' \u2192 ');
+    if (totalOverlap > 0) result += '\n  ' + totalOverlap + ' days overlap detected';
+    return result;
   }
 
   function resetSegments() {
     segments.length = 0;
     segOpen = false;
     segSection.classList.remove('visible');
-    segToggle.textContent = 'Build from segments';
+    segToggleBtn.textContent = 'Build from segments';
     segRowsEl.innerHTML = '';
     document.getElementById('segTotal').textContent = '';
     numDaysInput.readOnly = false;
