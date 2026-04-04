@@ -449,38 +449,19 @@ input:focus {
   padding: 20px;
   margin-top: 16px;
   box-shadow: var(--shadow-md);
-  animation: slideUp 0.3s ease;
 }
 
 .result-card.visible {
   display: block;
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes resultReveal {
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes resultRevealPrimary {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes resultRevealSecondary {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.result-answer.animate {
-  animation: resultRevealPrimary 0.3s ease-out both;
-}
-
-.result-label.animate {
-  animation: resultRevealPrimary 0.3s ease-out both;
-}
-
-.result-stats.animate {
-  animation: resultRevealSecondary 0.3s ease-out 0.1s both;
+.result-card.animate-in {
+  animation: resultReveal 0.3s ease-out;
 }
 
 .result-note {
@@ -1069,7 +1050,7 @@ input:focus {
       </div>
       <div class="field">
         <label for="numDays">Number of Days</label>
-        <input type="number" id="numDays" min="0" max="9999" value="30" inputmode="numeric">
+        <input type="number" id="numDays" min="0" value="30" inputmode="numeric">
       </div>
       <div class="field">
         <label>Direction</label>
@@ -1495,8 +1476,7 @@ input:focus {
     }
     numDays = Math.floor(numDays);
     if (numDays > 9999) {
-      numDays = 9999;
-      document.getElementById('numDays').value = '9999';
+      return showError('Maximum 9999 days');
     }
 
     const start = new Date(startVal + 'T00:00:00');
@@ -1540,8 +1520,7 @@ input:focus {
       calendarDays: calendarDays,
       excluded: excludedCount,
       skippedHolidays: skippedHolidays,
-      shareText: shareText,
-      note: parseInt(numDaysRaw, 10) > 9999 ? 'Maximum 9999 days' : ''
+      shareText: shareText
     });
   }
 
@@ -1658,15 +1637,6 @@ input:focus {
       noteEl.style.display = 'none';
     }
 
-    // Animate
-    answerEl.classList.remove('animate');
-    labelEl.classList.remove('animate');
-    statsEl.classList.remove('animate');
-    void answerEl.offsetWidth;
-    answerEl.classList.add('animate');
-    labelEl.classList.add('animate');
-    statsEl.classList.add('animate');
-
     // Visual pulse on Calculate button
     pulseBtn(document.getElementById('calcBtn'));
 
@@ -1699,7 +1669,11 @@ input:focus {
     document.getElementById('detailsToggle').classList.remove('open');
     detailsContent.classList.remove('visible');
 
-    document.getElementById('resultCard').classList.add('visible');
+    var rc = document.getElementById('resultCard');
+    rc.classList.remove('animate-in');
+    rc.classList.add('visible');
+    void rc.offsetHeight;
+    rc.classList.add('animate-in');
   }
 
   // ── Exclusion Label Helper ──
