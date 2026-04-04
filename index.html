@@ -1208,6 +1208,13 @@ input:focus {
   <div id="addMode">
     <div class="card">
       <div class="field">
+        <label>Direction</label>
+        <div class="direction-toggle">
+          <button class="dir-btn active" data-dir="forward">Forward (+)</button>
+          <button class="dir-btn" data-dir="backward">Backward (&minus;)</button>
+        </div>
+      </div>
+      <div class="field">
         <label for="startDate">Start Date</label>
         <input type="date" id="startDate">
       </div>
@@ -1219,13 +1226,6 @@ input:focus {
           <div id="segRows"></div>
           <button class="seg-add-btn" id="segAddBtn">+ Add Segment</button>
           <div class="seg-total" id="segTotal"></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Direction</label>
-        <div class="direction-toggle">
-          <button class="dir-btn active" data-dir="forward">Forward (+)</button>
-          <button class="dir-btn" data-dir="backward">Backward (&minus;)</button>
         </div>
       </div>
     </div>
